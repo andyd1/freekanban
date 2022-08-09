@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "736614767024",
+    "project_id": "free-kanban",
+    "storage_bucket": "free-kanban.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736614767024:android:913dbfdb4463d66ec19e75",
+        "android_client_info": {
+          "package_name": "com.example.freekanban"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736614767024-be4bier95j25psa50an08cnvas0gck7b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.freekanban",
+            "certificate_hash": "53c2f15c976e542e8e16f123e7b5fd9aef36520b"
+          }
+        },
+        {
+          "client_id": "736614767024-34190m40jv88qmt0akhtdat8l650vnae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfchJsxSm7xkZk3vgsqTm5CvXbaFKjy6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736614767024-34190m40jv88qmt0akhtdat8l650vnae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
