@@ -38,6 +38,9 @@ dependencies:
   flutterfire_ui: ^0.4.3+4
   cloud_firestore: ^3.4.3
   firebase_core: ^1.20.0
+  flutter_form_builder: ^7.5.0
+  form_builder_validators: ^8.3.0
+  flutter_colorpicker: ^1.0.3
 
 dev_dependencies:
   flutter_test:

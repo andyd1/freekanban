@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutterfire_ui/auth.dart';
+import 'package:flutterfire_ui/i10n.dart';
 import 'config.dart';
 import 'src/home_page.dart';
-
-import 'firebase_options.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+//import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,10 +15,10 @@ Future<void> main() async {
 
   FlutterFireUIAuth.configureProviders([
     const EmailProviderConfiguration(),
-    const GoogleProviderConfiguration(clientId: GOOGLE_CLIENT_ID),
+    const GoogleProviderConfiguration(clientId: googleClientId),
   ]);
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -25,8 +26,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-
+    return const MaterialApp(
+      supportedLocales: [
+        Locale('en'),
+      ],
+      localizationsDelegates: [
+        FormBuilderLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       home: AuthGate(),
     );
   }
@@ -82,14 +90,14 @@ class AuthGate extends StatelessWidget {
                   ),
                 );
               },
-              providerConfigs: [
-                const EmailProviderConfiguration(),
-                const GoogleProviderConfiguration(clientId: GOOGLE_CLIENT_ID),
+              providerConfigs: const [
+                EmailProviderConfiguration(),
+                GoogleProviderConfiguration(clientId: googleClientId),
               ]);
         }
 
         // Render your application if authenticated
-        return HomePage();
+        return const HomePage();
       },
     );
   }
