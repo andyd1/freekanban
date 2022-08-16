@@ -22,8 +22,6 @@ class ViewCard extends StatefulWidget {
 class _ViewCardState extends State<ViewCard> {
   final formKey = GlobalKey<FormBuilderState>();
 
-  TextEditingController? nameController;
-  TextEditingController? descrController;
 
   String? severity;
   String? priority;
@@ -36,18 +34,12 @@ class _ViewCardState extends State<ViewCard> {
   int color = 0;
   String newComment = "";
 
-  TextEditingController newCommentController = TextEditingController(text: "");
-
 
   @override
   void initState() {
     super.initState();
     if (widget.card != null) {
       Map<String, dynamic> fields = widget.card?.data() as Map<String, dynamic>;
-      nameController =
-          TextEditingController(text: widget.card?.get('name') ?? '');
-      descrController =
-          TextEditingController(text: widget.card?.get('descr') ?? '');
 
       severity =
       (fields.containsKey('severity')) ? widget.card?.get('severity') : "";
@@ -80,6 +72,14 @@ class _ViewCardState extends State<ViewCard> {
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController? nameController;
+    TextEditingController? descrController;
+    TextEditingController newCommentController = TextEditingController(
+        text: "");
+    nameController =
+        TextEditingController(text: widget.card?.get('name') ?? '');
+    descrController =
+        TextEditingController(text: widget.card?.get('descr') ?? '');
     TextEditingController tagController = TextEditingController();
     return Scaffold(
       appBar: AppBar(
@@ -304,23 +304,31 @@ class _ViewCardState extends State<ViewCard> {
                         )
                       ],
                     ),
-                    FormBuilderTextField(
-                      autovalidateMode: AutovalidateMode.disabled,
-                      name: 'addComment',
-                      minLines: 3,
-                      maxLines: 10,
-                      controller: newCommentController,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                      ),
-                      validator: FormBuilderValidators.compose([
-                        //FormBuilderValidators.required(),
-                      ]),
-                      keyboardType: TextInputType.multiline,
-                      textInputAction: TextInputAction.next,
+                    Row(
+                      children: [
+
+                        Expanded(flex: 8, child: FormBuilderTextField(
+                          autovalidateMode: AutovalidateMode.disabled,
+                          name: 'addComment',
+                          minLines: 3,
+                          maxLines: 10,
+                          controller: newCommentController,
+                          decoration: const InputDecoration(
+                            labelText: 'Add Comment',
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            //FormBuilderValidators.required(),
+                          ]),
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.next,
+                        ),),
+                        const Spacer(flex: 1),
+                        Expanded(flex: 1, child: IconButton(onPressed: () =>
+                            _addComment(newCommentController.text),
+                          icon: const Icon(Icons.add),),),
+                      ],
                     ),
-                    IconButton(onPressed: () => _addComment(),
-                      icon: const Icon(Icons.add),),
+                    const Text("Comments:"),
                     Container(
                       padding: const EdgeInsets.all(10),
                       child: StreamBuilder<QuerySnapshot>(
@@ -344,6 +352,7 @@ class _ViewCardState extends State<ViewCard> {
                                     (DocumentSnapshot comment) {
                                   return Container(
                                       padding: const EdgeInsets.all(10.0),
+                                      //TODO:  Edit/Delete comment
                                       child: ListTile(
                                         title: Text(
                                           comment.get('comment'),
@@ -368,6 +377,7 @@ class _ViewCardState extends State<ViewCard> {
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.save),
           onPressed: () {
+            debugPrint(nameController?.text);
             if (formKey.currentState?.saveAndValidate() ?? false) {
               widget.card == null
                   ? FirebaseFirestore.instance.collection('cards').add({
@@ -515,13 +525,13 @@ class _ViewCardState extends State<ViewCard> {
     );
   }
 
-  _addComment() {
+  _addComment(String comment) {
     FirebaseFirestore.instance.collection('cards')
         .doc(widget.card?.id)
         .collection('comments')
         .add(
         {
-          'comment': newCommentController.text,
+          'comment': comment,
           'createdBy': FirebaseAuth.instance.currentUser?.displayName,
           'createdDt': DateTime.now(),
 

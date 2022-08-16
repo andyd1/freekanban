@@ -1,5 +1,4 @@
 //Add strategic goals here
-//TODO:  Fix VCS
 //TODO:  Membership management
 //TODO:  Custom fields
 //TODO:  Ads
