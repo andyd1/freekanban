@@ -192,87 +192,85 @@ class _ViewProjectState extends State<ViewProject> {
         ),
         floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.add),
-          onPressed: () => _addSwimlane(null),
+          //onPressed: () => _addProject(),
+          onPressed: () {
+            final formKey = GlobalKey<FormBuilderState>();
+            TextEditingController nameController =
+            TextEditingController(text: "");
+
+            showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              builder: (BuildContext context) {
+                return SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Container(
+                    height: 200,
+                    padding: const EdgeInsets.all(10.0),
+                    child: Center(
+                      child: Column(
+                        children: <Widget>[
+                          FormBuilder(
+                            key: formKey,
+                            // enabled: false,
+                            autovalidateMode: AutovalidateMode.disabled,
+                            skipDisabled: true,
+                            child: Column(
+                              children: <Widget>[
+                                FormBuilderTextField(
+                                  autovalidateMode: AutovalidateMode.disabled,
+                                  name: 'name',
+                                  controller: nameController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Name',
+                                  ),
+                                  validator: FormBuilderValidators.compose([
+                                    FormBuilderValidators.required(),
+                                  ]),
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                  child: const Text('Save'),
+                                  onPressed: () {
+                                    if (formKey.currentState?.saveAndValidate() ?? false) {
+                                      FirebaseFirestore.instance
+                                          .collection('swimlanes')
+                                          .add({
+                                        'createdDt': DateTime.now(),
+                                        'name': nameController.text,
+                                        'pid': widget.project.id,
+                                        'order': 0,
+                                      });
+
+                                      Navigator.of(context).pop();
+                                    } else {}
+                                  }),
+                              TextButton(
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
         ),
       ),
-    );
-  }
-
-  Future<void> _addSwimlane(DocumentSnapshot? swimlane) async {
-    final formKey = GlobalKey<FormBuilderState>();
-    TextEditingController nameController =
-        TextEditingController(text: swimlane?.get('name') ?? '');
-
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("${swimlane == null ? "Create" : "Edit"} Swimlane"),
-          content: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                FormBuilder(
-                  key: formKey,
-                  // enabled: false,
-                  autovalidateMode: AutovalidateMode.disabled,
-                  skipDisabled: true,
-                  child: Column(
-                    children: <Widget>[
-                      FormBuilderTextField(
-                        autovalidateMode: AutovalidateMode.disabled,
-                        name: 'name',
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                        ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.next,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-                child: const Text('Save'),
-                onPressed: () {
-                  if (formKey.currentState?.saveAndValidate() ?? false) {
-                    swimlane == null
-                        ? FirebaseFirestore.instance
-                            .collection('swimlanes')
-                            .add({
-                            'createdDt': DateTime.now(),
-                            'name': nameController.text,
-                            'pid': widget.project.id,
-                            'order': 0,
-                          })
-                        : FirebaseFirestore.instance
-                            .collection('swimlanes')
-                            .doc(swimlane.id)
-                            .update({
-                            'createdDt': DateTime.now(),
-                            'name': nameController.text,
-                            'pid': widget.project.id,
-                          });
-
-                    Navigator.of(context).pop();
-                  } else {}
-                }),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
     );
   }
 

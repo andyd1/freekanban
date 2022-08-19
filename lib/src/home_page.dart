@@ -87,82 +87,96 @@ class _HomePageState extends State<HomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => _addProject(),
-      ),
-    );
-  }
+        //onPressed: () => _addProject(),
+        onPressed: () {
+          final formKey = GlobalKey<FormBuilderState>();
+          TextEditingController nameController =
+              TextEditingController(text: "");
 
-  Future<void> _addProject() {
-    final formKey = GlobalKey<FormBuilderState>();
-    TextEditingController nameController = TextEditingController(text: "");
-
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Create New Project'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                FormBuilder(
-                  key: formKey,
-                  // enabled: false,
-                  autovalidateMode: AutovalidateMode.disabled,
-                  skipDisabled: true,
-                  child: Column(
-                    children: <Widget>[
-                      FormBuilderTextField(
-                        autovalidateMode: AutovalidateMode.disabled,
-                        name: 'name',
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
+          showModalBottomSheet<void>(
+            context: context,
+            isScrollControlled: true,
+            builder: (BuildContext context) {
+              return SingleChildScrollView(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: Container(
+                  height: 200,
+                  padding: const EdgeInsets.all(10.0),
+                  child: Center(
+                    child: Column(
+                      children: <Widget>[
+                        FormBuilder(
+                          key: formKey,
+                          // enabled: false,
+                          autovalidateMode: AutovalidateMode.disabled,
+                          skipDisabled: true,
+                          child: Column(
+                            children: <Widget>[
+                              FormBuilderTextField(
+                                autovalidateMode: AutovalidateMode.disabled,
+                                name: 'name',
+                                controller: nameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Name',
+                                ),
+                                validator: FormBuilderValidators.compose([
+                                  FormBuilderValidators.required(),
+                                ]),
+                                keyboardType: TextInputType.text,
+                                textInputAction: TextInputAction.next,
+                              ),
+                            ],
+                          ),
                         ),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                        ]),
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.next,
-                      ),
-                    ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                                child: const Text('Save'),
+                                onPressed: () {
+                                  if (formKey.currentState?.saveAndValidate() ??
+                                      false) {
+                                    //create project
+                                    FirebaseFirestore.instance
+                                        .collection('projects')
+                                        .add({
+                                      'createdDt': DateTime.now(),
+                                      'name': nameController.text,
+                                      'uid': FirebaseAuth
+                                          .instance.currentUser?.uid,
+                                      'color': 4294967295,
+                                    }).then((doc) {
+                                      FirebaseFirestore.instance
+                                          .collection('swimlanes')
+                                          .add({
+                                        'createdDt': DateTime.now(),
+                                        'name': "To Do",
+                                        'pid': doc.id,
+                                        'order': 0,
+                                      });
+                                    }); //add initial swimlane
+
+                                    Navigator.of(context).pop();
+                                  } else {}
+                                }),
+                            TextButton(
+                              child: const Text('Cancel'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-                child: const Text('Save'),
-                onPressed: () {
-                  if (formKey.currentState?.saveAndValidate() ?? false) {
-                    //create project
-                    FirebaseFirestore.instance.collection('projects').add({
-                      'createdDt': DateTime.now(),
-                      'name': nameController.text,
-                      'uid': FirebaseAuth.instance.currentUser?.uid,
-                      'color': 4294967295,
-                    }).then((doc) {
-                      FirebaseFirestore.instance.collection('swimlanes').add({
-                        'createdDt': DateTime.now(),
-                        'name': "To Do",
-                        'pid': doc.id,
-                        'order': 0,
-                      });
-                    }); //add initial swimlane
-
-                    Navigator.of(context).pop();
-                  } else {}
-                }),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

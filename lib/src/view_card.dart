@@ -22,18 +22,18 @@ class ViewCard extends StatefulWidget {
 class _ViewCardState extends State<ViewCard> {
   final formKey = GlobalKey<FormBuilderState>();
 
-
   String? severity;
   String? priority;
   bool? reminder;
   DateTime? startDate;
   DateTime? endDate;
+  DateTime? reminderDate;
+
   List<dynamic> cardTags = [];
   int businessValue = 0;
   int storyPoints = 0;
   int color = 0;
   String newComment = "";
-
 
   @override
   void initState() {
@@ -42,9 +42,9 @@ class _ViewCardState extends State<ViewCard> {
       Map<String, dynamic> fields = widget.card?.data() as Map<String, dynamic>;
 
       severity =
-      (fields.containsKey('severity')) ? widget.card?.get('severity') : "";
+          (fields.containsKey('severity')) ? widget.card?.get('severity') : "";
       priority =
-      (fields.containsKey('priority')) ? widget.card?.get('priority') : "";
+          (fields.containsKey('priority')) ? widget.card?.get('priority') : "";
 
       color = (fields.containsKey('color'))
           ? widget.card?.get('color')
@@ -61,12 +61,25 @@ class _ViewCardState extends State<ViewCard> {
           ? widget.card?.get('reminder')
           : false;
       startDate = (fields.containsKey('startDate'))
-          ? widget.card?.get('startDate')
+          ? widget.card?.get('startDate') == null
+              ? null
+              : widget.card?.get('startDate').toDate()
           : null;
-      endDate =
-      (fields.containsKey('endDate')) ? widget.card?.get('endDate') : null;
-      cardTags =
-      (fields.containsKey('tags')) ? widget.card?.get('tags').toList() : [];
+      endDate = (fields.containsKey('endDate'))
+          ? widget.card?.get('endDate') == null
+              ? null
+              : widget.card?.get('endDate').toDate()
+          : null;
+
+      reminderDate = (fields.containsKey('reminderDate'))
+          ? widget.card?.get('reminderDate') == null
+              ? null
+              : widget.card?.get('reminderDate').toDate()
+          : null;
+
+      cardTags = (fields.containsKey('tags'))
+          ? widget.card?.get('tags').toList() ?? null
+          : [];
     }
   }
 
@@ -74,8 +87,8 @@ class _ViewCardState extends State<ViewCard> {
   Widget build(BuildContext context) {
     TextEditingController? nameController;
     TextEditingController? descrController;
-    TextEditingController newCommentController = TextEditingController(
-        text: "");
+    TextEditingController newCommentController =
+        TextEditingController(text: "");
     nameController =
         TextEditingController(text: widget.card?.get('name') ?? '');
     descrController =
@@ -140,89 +153,173 @@ class _ViewCardState extends State<ViewCard> {
                       keyboardType: TextInputType.multiline,
                       textInputAction: TextInputAction.next,
                     ),
-                    FormBuilderDropdown<String>(
-                      // autovalidate: true,
-                      name: 'severity',
-                      decoration: const InputDecoration(
-                        labelText: 'Severity',
-                      ),
-                      initialValue: severity,
-                      allowClear: true,
-                      hint: const Text('Select Severity'),
-                      validator: FormBuilderValidators.compose([
-                        //  FormBuilderValidators.required()
-                      ]),
-                      items: ["", "Critical", "High", "Medium", "Low"]
-                          .map((item) =>
-                          DropdownMenuItem(
-                            alignment: AlignmentDirectional.center,
-                            value: item,
-                            child: Text(item),
-                          ))
-                          .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          severity = val;
-                        });
-                      },
-                      valueTransformer: (val) => val?.toString(),
-                    ),
-                    FormBuilderDropdown<String>(
-                      // autovalidate: true,
-                      name: 'priority',
-                      decoration: const InputDecoration(
-                        labelText: 'Priority',
-                      ),
-                      initialValue: priority,
-                      allowClear: true,
-                      hint: const Text('Select Priority'),
-                      validator: FormBuilderValidators.compose([
-                        //  FormBuilderValidators.required()
-                      ]),
-                      items: ["", "Critical", "High", "Medium", "Low"]
-                          .map((item) =>
-                          DropdownMenuItem(
-                            alignment: AlignmentDirectional.center,
-                            value: item,
-                            child: Text(item),
-                          ))
-                          .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          priority = val;
-                        });
-                      },
-                      valueTransformer: (val) => val?.toString(),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: FormBuilderDropdown<String>(
+                            // autovalidate: true,
+                            name: 'priority',
+                            decoration: const InputDecoration(
+                              labelText: 'Priority',
+                            ),
+                            initialValue: priority,
+                            validator: FormBuilderValidators.compose([
+                              //  FormBuilderValidators.required()
+                            ]),
+                            items: ["", "Critical", "High", "Medium", "Low"]
+                                .map((item) => DropdownMenuItem(
+                                      alignment: AlignmentDirectional.center,
+                                      value: item,
+                                      child: Text(item),
+                                    ))
+                                .toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                priority = val;
+                              });
+                            },
+                            valueTransformer: (val) => val?.toString(),
+                          ),
+                        ),
+                        const Spacer(flex: 1),
+                        Expanded(
+                          flex: 5,
+                          child: FormBuilderDropdown<String>(
+                            // autovalidate: true,
+                            name: 'severity',
+                            decoration: const InputDecoration(
+                              labelText: 'Severity',
+                            ),
+                            initialValue: severity,
+                            //allowClear: true,
+                            //hint: const Text('Select Severity'),
+                            validator: FormBuilderValidators.compose([
+                              //  FormBuilderValidators.required()
+                            ]),
+                            items: ["", "Critical", "High", "Medium", "Low"]
+                                .map((item) => DropdownMenuItem(
+                                      alignment: AlignmentDirectional.center,
+                                      value: item,
+                                      child: Text(item),
+                                    ))
+                                .toList(),
+                            onChanged: (val) {
+                              setState(() {
+                                severity = val;
+                              });
+                            },
+                            valueTransformer: (val) => val?.toString(),
+                          ),
+                        ),
+                      ],
                     ),
 
                     //TODO:  Fix suffix of picker
-                    FormBuilderDateTimePicker(
-                      name: 'startDate',
-                      initialEntryMode: DatePickerEntryMode.calendar,
-                      initialValue: startDate,
-                      inputType: InputType.date,
-                      decoration: const InputDecoration(
-                        labelText: 'Start Date',
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: FormBuilderDateTimePicker(
+                            name: 'startDate',
+                            initialEntryMode: DatePickerEntryMode.calendar,
+                            initialValue: startDate,
+                            inputType: InputType.date,
+                            decoration: InputDecoration(
+                              labelText: 'Start Date',
+                              suffixIcon: IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    formKey.currentState!.fields['startDate']
+                                        ?.didChange(null);
+                                  }),
+                            ),
+                            onChanged: (val) {
+                              startDate = val;
+                            },
+                          ),
+                        ),
+                        const Spacer(flex: 1),
+                        Expanded(
+                          flex: 5,
+                          child: FormBuilderDateTimePicker(
+                            name: 'endDate',
+                            initialEntryMode: DatePickerEntryMode.calendarOnly,
+                            initialValue: endDate,
+                            inputType: InputType.date,
+                            onChanged: (val) {
+                              endDate = val;
+                            },
+                            validator: FormBuilderValidators.compose([
+                              (val) {
+                                if (val == null) return null;
+                                final startDt =
+                                    startDate ?? DateTime(1900, 1, 1);
+                                if (startDt.isAfter(val)) {
+                                  return "End date cannot precede start date.";
+                                }
+                                return null;
+                              }
+                              //  FormBuilderValidators.required()
+                            ]),
+                            decoration: InputDecoration(
+                              labelText: 'End Date',
+                              suffixIcon: IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    formKey.currentState!.fields['endDate']
+                                        ?.didChange(null);
+                                  }),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    FormBuilderDateTimePicker(
-                      name: 'endDate',
-                      initialEntryMode: DatePickerEntryMode.calendarOnly,
-                      initialValue: endDate,
-                      inputType: InputType.date,
-                      decoration: const InputDecoration(
-                        labelText: 'End Date',
-                      ),
-                    ),
-                    FormBuilderCheckbox(
-                      name: 'reminder',
-                      initialValue: reminder,
-                      onChanged: (val) {
-                        setState(() {
-                          reminder = val;
-                        });
-                      },
-                      title: const Text("Set Reminder?"),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: FormBuilderCheckbox(
+                            name: 'reminder',
+                            initialValue: reminder,
+                            onChanged: (val) {
+                              setState(() {
+                                reminder = val;
+                              });
+                            },
+                            title: const Text("Set Reminder?"),
+                          ),
+                        ),
+                        const Spacer(flex: 1),
+                        Expanded(
+                          flex: 5,
+                          child: (formKey.currentState!.fields['reminder']
+                                      ?.value ==
+                                  true)
+                              ? FormBuilderDateTimePicker(
+                                  name: 'reminderDate',
+                                  initialEntryMode:
+                                      DatePickerEntryMode.calendar,
+                                  initialValue: reminderDate,
+                                  inputType: InputType.date,
+                                  decoration: InputDecoration(
+                                    labelText: 'Reminder Date',
+                                    suffixIcon: IconButton(
+                                        icon: const Icon(Icons.close),
+                                        onPressed: () {
+                                          formKey.currentState!
+                                              .fields['reminderDate']
+                                              ?.didChange(null);
+                                        }),
+                                  ),
+                                  onChanged: (val) {
+                                    startDate = val;
+                                  },
+                                )
+                              :  Container(),
+                        ),
+                      ],
                     ),
                     Row(
                       children: [
@@ -273,8 +370,13 @@ class _ViewCardState extends State<ViewCard> {
                         ),
                       ],
                     ),
-                    Wrap(
-                      children: _getTags(),
+                    Card(
+                      child: ListTile(
+                        title: const Text("Tags"),
+                        subtitle: Wrap(
+                          children: _getTags(),
+                        ),
+                      ),
                     ),
                     Row(
                       children: [
@@ -299,72 +401,88 @@ class _ViewCardState extends State<ViewCard> {
                           flex: 1,
                           child: IconButton(
                             icon: const Icon(Icons.add),
-                            onPressed: () => _addTag(tagController.text),
+                            onPressed: () {
+                              if (tagController.text != "") {
+                                _addTag(tagController.text);
+                              }
+                            },
                           ),
                         )
                       ],
                     ),
                     Row(
                       children: [
-
-                        Expanded(flex: 8, child: FormBuilderTextField(
-                          autovalidateMode: AutovalidateMode.disabled,
-                          name: 'addComment',
-                          minLines: 3,
-                          maxLines: 10,
-                          controller: newCommentController,
-                          decoration: const InputDecoration(
-                            labelText: 'Add Comment',
+                        Expanded(
+                          flex: 8,
+                          child: FormBuilderTextField(
+                            autovalidateMode: AutovalidateMode.disabled,
+                            name: 'addComment',
+                            minLines: 3,
+                            maxLines: 10,
+                            controller: newCommentController,
+                            decoration: const InputDecoration(
+                              labelText: 'Add Comment',
+                            ),
+                            validator: FormBuilderValidators.compose([
+                              //FormBuilderValidators.required(),
+                            ]),
+                            keyboardType: TextInputType.multiline,
+                            textInputAction: TextInputAction.next,
                           ),
-                          validator: FormBuilderValidators.compose([
-                            //FormBuilderValidators.required(),
-                          ]),
-                          keyboardType: TextInputType.multiline,
-                          textInputAction: TextInputAction.next,
-                        ),),
+                        ),
                         const Spacer(flex: 1),
-                        Expanded(flex: 1, child: IconButton(onPressed: () =>
-                            _addComment(newCommentController.text),
-                          icon: const Icon(Icons.add),),),
+                        Expanded(
+                          flex: 1,
+                          child: IconButton(
+                            onPressed: () {
+                              if (newCommentController.text != "") {
+                                _addComment(newCommentController.text);
+                                newCommentController.text = "";
+                              }
+                            },
+                            icon: const Icon(Icons.add),
+                          ),
+                        ),
                       ],
                     ),
-                    const Text("Comments:"),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      child: StreamBuilder<QuerySnapshot>(
-                          stream: FirebaseFirestore.instance
-                              .collection('cards')
-                              .doc(widget.card?.id)
-                              .collection('comments')
-                              .orderBy('createdDt', descending: true)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return const Text('Something went wrong');
-                            }
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Text('Loading');
-                            }
+                    ListTile(
+                      title: const Text("Comments"),
+                      subtitle: Container(
+                        padding: const EdgeInsets.all(10),
+                        child: StreamBuilder<QuerySnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('cards')
+                                .doc(widget.card?.id)
+                                .collection('comments')
+                                .orderBy('createdDt', descending: true)
+                                .snapshots(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasError) {
+                                return const Text('Something went wrong');
+                              }
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Text('Loading');
+                              }
 
-                            return Column(
-                              children: snapshot.data!.docs.map(
-                                    (DocumentSnapshot comment) {
-                                  return Container(
-                                      padding: const EdgeInsets.all(10.0),
-                                      //TODO:  Edit/Delete comment
-                                      child: ListTile(
-                                        title: Text(
-                                          comment.get('comment'),
-                                        ),
-                                        subtitle: Text(
-                                          comment.get('createdBy'),
-                                        ),
-                                      ));
-                                },
-                              ).toList(),
-                            );
-                          }),
+                              return Column(
+                                children: snapshot.data!.docs.map(
+                                  (DocumentSnapshot comment) {
+                                    return Container(
+                                        padding: const EdgeInsets.all(10.0),
+                                        //TODO:  Edit/Delete comment
+                                        child: ListTile(
+                                          title: Text(
+                                            comment.get('comment'),
+                                          ),
+                                          subtitle: Text(
+                                              "${comment.get('createdBy')} at ${comment.get('createdDt').toDate()} "),
+                                        ));
+                                  },
+                                ).toList(),
+                              );
+                            }),
+                      ),
                     ),
                     //TODO:  Checklist
                   ],
@@ -374,48 +492,55 @@ class _ViewCardState extends State<ViewCard> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
           child: const Icon(Icons.save),
           onPressed: () {
             debugPrint(nameController?.text);
             if (formKey.currentState?.saveAndValidate() ?? false) {
+              if (formKey.currentState!.fields['reminder']?.value==false) {
+                reminderDate=null;
+              }
+
               widget.card == null
                   ? FirebaseFirestore.instance.collection('cards').add({
-                'createdDt': DateTime.now(),
-                'name': nameController?.text,
-                'descr': descrController?.text,
-                'pid': widget.project?.id,
-                'sid': widget.swimlane?.id,
-                'order': 0,
-                'priority': priority,
-                'severity': severity,
-                'reminder': reminder,
-                'startDate': startDate,
-                'endDate': endDate,
-                'tags': cardTags,
-                'storyPoints': storyPoints,
-                'businessValue': businessValue,
-                'color': color,
-              })
+                      'createdDt': DateTime.now(),
+                      'name': nameController?.text,
+                      'descr': descrController?.text,
+                      'pid': widget.project?.id,
+                      'sid': widget.swimlane?.id,
+                      'order': 0,
+                      'priority': priority,
+                      'severity': severity,
+                      'reminder': reminder,
+                      'startDate': startDate,
+                      'endDate': endDate,
+                      'reminderDate': reminderDate,
+                      'tags': cardTags,
+                      'storyPoints': storyPoints,
+                      'businessValue': businessValue,
+                      'color': color,
+                    })
                   : FirebaseFirestore.instance
-                  .collection('cards')
-                  .doc(widget.card?.id)
-                  .update({
-                'createdDt': DateTime.now(),
-                'pid': widget.project?.id,
-                'sid': widget.swimlane?.id,
-                'name': nameController?.text,
-                'descr': descrController?.text,
-                'priority': priority,
-                'severity': severity,
-                'reminder': reminder,
-                'startDate': startDate,
-                'endDate': endDate,
-                'tags': cardTags,
-                'storyPoints': storyPoints,
-                'businessValue': businessValue,
-                'color': color,
-              });
+                      .collection('cards')
+                      .doc(widget.card?.id)
+                      .update({
+                      'createdDt': DateTime.now(),
+                      'pid': widget.project?.id,
+                      'sid': widget.swimlane?.id,
+                      'name': nameController?.text,
+                      'descr': descrController?.text,
+                      'priority': priority,
+                      'severity': severity,
+                      'reminder': reminder,
+                      'startDate': startDate,
+                      'endDate': endDate,
+                      'reminderDate': reminderDate,
+                      'tags': cardTags,
+                      'storyPoints': storyPoints,
+                      'businessValue': businessValue,
+                      'color': color,
+                    });
               Navigator.of(context).pop();
             } else {}
           }),
@@ -526,16 +651,14 @@ class _ViewCardState extends State<ViewCard> {
   }
 
   _addComment(String comment) {
-    FirebaseFirestore.instance.collection('cards')
+    FirebaseFirestore.instance
+        .collection('cards')
         .doc(widget.card?.id)
         .collection('comments')
-        .add(
-        {
-          'comment': comment,
-          'createdBy': FirebaseAuth.instance.currentUser?.displayName,
-          'createdDt': DateTime.now(),
-
-        }
-    );
+        .add({
+      'comment': comment,
+      'createdBy': FirebaseAuth.instance.currentUser?.displayName,
+      'createdDt': DateTime.now(),
+    });
   }
 }
