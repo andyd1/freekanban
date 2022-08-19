@@ -294,8 +294,7 @@ class _ViewCardState extends State<ViewCard> {
                         const Spacer(flex: 1),
                         Expanded(
                           flex: 5,
-                          child: (formKey.currentState!.fields['reminder']
-                                      ?.value ==
+                          child: (reminder ?? false ==
                                   true)
                               ? FormBuilderDateTimePicker(
                                   name: 'reminderDate',
