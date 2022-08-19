@@ -33,8 +33,7 @@ class Card {
       'name': name,
       'description': description,
       'status': status,
-      'color':
-      color,
+      'color': color,
       'storyPoints': storyPoints,
       'businessValue': businessValue,
       'pid': pid,

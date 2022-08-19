@@ -103,13 +103,14 @@ class _ViewProjectState extends State<ViewProject> {
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                  builder: (context) => ViewCard(
-                                                      project: widget.project,
-                                                      swimlane: swimlane,
-                                                      card: null)),
+                                                  builder: (context) =>
+                                                      ViewCard(
+                                                          project:
+                                                              widget.project,
+                                                          swimlane: swimlane,
+                                                          card: null)),
                                             );
                                           }),
-
                                     ],
                                   );
                                 },
@@ -196,7 +197,7 @@ class _ViewProjectState extends State<ViewProject> {
           onPressed: () {
             final formKey = GlobalKey<FormBuilderState>();
             TextEditingController nameController =
-            TextEditingController(text: "");
+                TextEditingController(text: "");
 
             showModalBottomSheet<void>(
               context: context,
@@ -240,7 +241,9 @@ class _ViewProjectState extends State<ViewProject> {
                               TextButton(
                                   child: const Text('Save'),
                                   onPressed: () {
-                                    if (formKey.currentState?.saveAndValidate() ?? false) {
+                                    if (formKey.currentState
+                                            ?.saveAndValidate() ??
+                                        false) {
                                       FirebaseFirestore.instance
                                           .collection('swimlanes')
                                           .add({

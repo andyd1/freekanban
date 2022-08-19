@@ -294,8 +294,7 @@ class _ViewCardState extends State<ViewCard> {
                         const Spacer(flex: 1),
                         Expanded(
                           flex: 5,
-                          child: (reminder ?? false ==
-                                  true)
+                          child: (reminder ?? false == true)
                               ? FormBuilderDateTimePicker(
                                   name: 'reminderDate',
                                   initialEntryMode:
@@ -316,7 +315,7 @@ class _ViewCardState extends State<ViewCard> {
                                     startDate = val;
                                   },
                                 )
-                              :  Container(),
+                              : Container(),
                         ),
                       ],
                     ),
@@ -497,8 +496,8 @@ class _ViewCardState extends State<ViewCard> {
           onPressed: () {
             debugPrint(nameController?.text);
             if (formKey.currentState?.saveAndValidate() ?? false) {
-              if (formKey.currentState!.fields['reminder']?.value==false) {
-                reminderDate=null;
+              if (formKey.currentState!.fields['reminder']?.value == false) {
+                reminderDate = null;
               }
 
               widget.card == null
